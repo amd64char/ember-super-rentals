@@ -1,0 +1,16 @@
+<!--This template contains an {{input}} helper that renders as a text field, in which the user can type a pattern to filter the list of cities used in a search.-->
+{{input
+  value=value
+  key-up=(action "handleFilterEntry")
+  class="light"
+  placeholder="Filter By City"
+}}
+
+<!--https://github.com/johno/ember-cli-loading-->
+<div class="loadingBar">
+  {{#if isFiltering}}
+    {{loading-bars color='green' size=100}}
+  {{/if}}
+</div>
+
+{{yield results}}

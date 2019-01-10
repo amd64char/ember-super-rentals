@@ -1,0 +1,90 @@
+
+export default function() {
+
+  // For the case of our project, we'll use mirage as our source of data rather than a traditional backend server. 
+  // Mirage will allow us to create fake data to work with while developing our app and mimic an API..
+
+  /*
+    Config (with defaults).
+
+    Note: these only affect routes defined *after* them!
+  */
+
+  // this.urlPrefix = '';    // make this `http://localhost:8080`, for example, if your API is on a different server
+  // this.namespace = '';    // make this `/api`, for example, if your API is namespaced
+  // this.timing = 400;      // delay for each request, automatically set to 0 during testing
+
+  /*
+    Shorthand cheatsheet:
+
+    this.get('/posts');
+    this.post('/posts');
+    this.get('/posts/:id');
+    this.put('/posts/:id'); // or this.patch
+    this.del('/posts/:id');
+
+    http://www.ember-cli-mirage.com/docs/v0.4.x/shorthands/
+  */
+
+  // Setting allows our map calls to thru the server
+  this.passthrough('https://api.mapbox.com/**');
+
+  // Setting namespace lets mirage know to only provide data for URL requests that start with api
+  this.namespace = '/api';
+
+  // Define our object array of rentals. Fake data. Would be replaced with an acutal API call.
+  let rentals = [{
+      type: 'rentals',
+      id: 'grand-old-mansion',
+      attributes: {
+        title: 'Grand Old Mansion',
+        owner: 'Veruca Salt',
+        city: 'San Francisco',
+        category: 'Estate',
+        bedrooms: 15,
+        image: 'https://upload.wikimedia.org/wikipedia/commons/c/cb/Crane_estate_(5).jpg',
+        description: "This grand old mansion sits on over 100 acres of rolling hills and dense redwood forests."
+      }
+    }, {
+      type: 'rentals',
+      id: 'urban-living',
+      attributes: {
+        title: 'Urban Living',
+        owner: 'Mike Teavee',
+        city: 'Seattle',
+        category: 'Condo',
+        bedrooms: 1,
+        image: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Alfonso_13_Highrise_Tegucigalpa.jpg',
+        description: "A commuters dream. This rental is within walking distance of 2 bus stops and the Metro."
+      }
+    }, {
+      type: 'rentals',
+      id: 'downtown-charm',
+      attributes: {
+        title: 'Downtown Charm',
+        owner: 'Violet Beauregarde',
+        city: 'Portland',
+        category: 'Apartment',
+        bedrooms: 3,
+        image: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/Wheeldon_Apartment_Building_-_Portland_Oregon.jpg',
+        description: "Convenience is at your doorstep with this charming downtown rental. Great restaurants and active night life are within a few feet."
+      }
+    }];
+    
+    // Return all the rental data when a request comes in at /api/rentals
+    this.get('/rentals', function(db, request) {
+      if(request.queryParams.city !== undefined) {
+        let filteredRentals = rentals.filter(function(i) {
+          return i.attributes.city.toLowerCase().indexOf(request.queryParams.city.toLowerCase()) !== -1;
+        });
+        return { data: filteredRentals };
+      } else {
+        return { data: rentals };
+      }
+    });
+
+    // Find and return a specific rental from our rental data
+    this.get('/rentals/:id', function(db, request) {
+      return { data: rentals.find((rental) => request.params.id === rental.id) };
+    });
+}
